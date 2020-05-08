@@ -4,23 +4,26 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    public float HorizontalMovement;
-    public float VerticalMovement;
-
     public float upDistance;
-    public float downDistance;
     public float leftDistance;
     public float rightDistance;
+    public float[] RightDistanceHistory;
+    public float[] LeftDistanceHistory;
+    private int HistoryCounter = 0;
 
-    public float rayDistance = 2;
+    public float rayDistance = 50;
 
     public LayerMask ObstacleLayerMask;
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        HorizontalMovement = Input.GetAxis("Horizontal");
-        VerticalMovement = Input.GetAxis("Vertical");
+        RightDistanceHistory = new float[5];
+        LeftDistanceHistory = new float[5];
+        //for(int i = 0; i < 5; i++)
+        //{
+         //   RightDistanceHistory[i] = 100;
+          //  LeftDistanceHistory[i] = 100;
+        //}
     }
 
     private void FixedUpdate()
@@ -38,28 +41,21 @@ public class InputManager : MonoBehaviour
 
     private void RaycastCheckUpdate()
     {
-        Vector2 up = new Vector2(0, 1 * rayDistance);
-        Vector2 down = new Vector2(0, -1 * rayDistance);
-        Vector2 left = new Vector2(-1 * rayDistance, 0);
-        Vector2 right = new Vector2(1 * rayDistance, 0);
+        Vector2 up = transform.up * rayDistance;
+        Vector2 left = -transform.right * rayDistance;
+        Vector2 right = transform.right * rayDistance;
 
         RaycastHit2D upHit = CheckRaycast(up);
-        RaycastHit2D downHit = CheckRaycast(down);
         RaycastHit2D leftHit = CheckRaycast(left);
         RaycastHit2D rightHit = CheckRaycast(right);
 
-        upDistance = 0;
-        downDistance = 0;
-        leftDistance = 0;
-        rightDistance = 0;
+        upDistance = 100;
+        leftDistance = 100;
+        rightDistance = 100;
 
         if (upHit.collider)
         {
             upDistance = Mathf.Abs(upHit.point.y - transform.position.y);
-        }
-        if (downHit.collider)
-        {
-            downDistance = Mathf.Abs(downHit.point.y - transform.position.y);
         }
         if (leftHit.collider)
         {
@@ -70,7 +66,16 @@ public class InputManager : MonoBehaviour
             rightDistance = Mathf.Abs(rightHit.point.x - transform.position.x);
         }
 
-        Debug.Log(upDistance + " " + downDistance + " " + leftDistance + " " + rightDistance);
+        // Keep track of previous distances.
+        RightDistanceHistory[HistoryCounter] = rightDistance;
+        LeftDistanceHistory[HistoryCounter] = leftDistance;
+        HistoryCounter++;
+        if(HistoryCounter >= 5)
+        {
+            HistoryCounter = 0;
+        }
+
+        //Debug.Log(upDistance + " " + leftDistance + " " + rightDistance);
     }
 
 }

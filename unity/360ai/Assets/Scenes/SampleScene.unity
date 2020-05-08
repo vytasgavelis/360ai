@@ -338,7 +338,7 @@ MonoBehaviour:
   downDistance: 0
   leftDistance: 0
   rightDistance: 0
-  rayDistance: 2
+  rayDistance: 50
   ObstacleLayerMask:
     serializedVersion: 2
     m_Bits: 256
@@ -355,7 +355,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   im: {fileID: 1182772291}
-  CarSpeed: 20
+  CarSpeed: 1
+  RotateSpeed: 15
+  criticalDistance: 1
+  state: 
 --- !u!61 &1182772294
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -437,10 +440,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1182772290}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.0058467695, w: 0.9999829}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.67}
