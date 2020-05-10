@@ -4,17 +4,22 @@ using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
+    // Chassis states
     const string MOVE_FORWARDS = "MOVE_FORWARDS";
     const string MOVE_BACKWARDS= "MOVE_BACKWARDS";
     const string TURN_LEFT = "TURN_LEFT";
     const string TURN_RIGHT = "TURN_RIGHT";
     const string WAIT = "WAIT";
+    const string STOP = "STOP";
 
     public InputManager im;
     public float CarSpeed = 1f;
     public float RotateSpeed = 5;
     public float CriticalDistance = 1f;
+    public float CriticalDistanceSide = 2;
     public string State; // stop/forwards/baackwards/turn_left/turn_right
+    public bool IsApproachingLeft;
+    public bool IsApproachingRight;
 
     private void Start()
     {
@@ -24,31 +29,39 @@ public class CarController : MonoBehaviour
     private void Update()
     {
         HandleStates();
-        Debug.Log(IsApproaching(im.RightDistanceHistory));
+        IsApproachingLeft = IsApproaching(im.LeftDistanceHistory);
+        IsApproachingRight = IsApproaching(im.RightDistanceHistory);
     }
 
     void Waiting()
     {
-        if(im.upDistance >= CriticalDistance)
+        if(im.upDistance >= CriticalDistance && !IsApproachingRight && !IsApproachingLeft)
         {
             State = MOVE_FORWARDS;
         }
-        else if(im.leftDistance >= CriticalDistance && im.leftDistance >= im.rightDistance)
+        else if(IsApproachingRight)
         {
             State = TURN_LEFT;
         }
-        else if(im.rightDistance >= CriticalDistance && im.rightDistance >= im.leftDistance)
+        else if(IsApproachingLeft)
         {
             State = TURN_RIGHT;
         }
+        else if(im.upDistance <= CriticalDistance)
+        {
+            State = (im.leftDistance <= im.rightDistance) ? TURN_RIGHT : TURN_LEFT;
+        }
+        // else{
+        //     State = MOVE_BACKWARDS;
+        // }
     }
 
     void MoveForwards()
     {
         if(
             im.upDistance <= CriticalDistance
-           || IsApproaching(im.RightDistanceHistory)
-           || IsApproaching(im.LeftDistanceHistory)
+           || IsApproachingRight
+           || IsApproachingLeft
           )
         {
             State = WAIT;
@@ -63,20 +76,24 @@ public class CarController : MonoBehaviour
 
     void TurnLeft()
     {
-        if(im.upDistance >= CriticalDistance)
+        if(im.rightDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistance)
         {
             State = WAIT;
         }
-        transform.Rotate(0, 0, transform.rotation.z + 1 * Time.deltaTime * RotateSpeed);
+        transform.Rotate(0, 0, transform.rotation.z + RotateSpeed);
     }
 
     void TurnRight()
     {
-        if (im.upDistance >= CriticalDistance)
+        if(im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistance)
         {
             State = WAIT;
         }
-        transform.Rotate(0, 0, transform.rotation.z + -1 * Time.deltaTime * RotateSpeed);
+        transform.Rotate(0, 0, transform.rotation.z + -RotateSpeed);
+    }
+
+    void Stop(){
+
     }
 
     void HandleStates()
@@ -100,7 +117,7 @@ public class CarController : MonoBehaviour
                 Waiting();
                 break;
             default:
-                Waiting();
+                Stop();
                 break;
         }
         //Debug.Log(State);
@@ -112,7 +129,7 @@ public class CarController : MonoBehaviour
         int SmallerDistanceCounter = 0;
         for(int i = 1; i < DistanceHistory.Length; i++)
         {
-            if(DistanceHistory[i] < DistanceHistory[i - 1])
+            if(DistanceHistory[i] <= CriticalDistance && DistanceHistory[i] < DistanceHistory[i - 1])
             {
                 SmallerDistanceCounter++;
             }
@@ -123,5 +140,9 @@ public class CarController : MonoBehaviour
         }
 
         return IsApproaching;
+    }
+
+    bool IsEnoughSpaceToTurn(){
+        return true;
     }
 }
