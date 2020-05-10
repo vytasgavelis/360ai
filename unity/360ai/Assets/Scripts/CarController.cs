@@ -13,10 +13,10 @@ public class CarController : MonoBehaviour
     const string STOP = "STOP";
 
     public InputManager im;
-    public float CarSpeed = 1f;
-    public float RotateSpeed = 5;
+    public float CarSpeed = 2f;
+    public float RotateSpeed = 2f;
     public float CriticalDistance = 1f;
-    public float CriticalDistanceSide = 2;
+    public float CriticalDistanceSide = 1.5f;
     public string State; // stop/forwards/baackwards/turn_left/turn_right
     public bool IsApproachingLeft;
     public bool IsApproachingRight;
