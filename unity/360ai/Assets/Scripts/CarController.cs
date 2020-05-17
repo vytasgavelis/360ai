@@ -6,7 +6,7 @@ public class CarController : MonoBehaviour
 {
     // Chassis states
     const string MOVE_FORWARDS = "MOVE_FORWARDS";
-    const string MOVE_BACKWARDS= "MOVE_BACKWARDS";
+    const string MOVE_BACKWARDS = "MOVE_BACKWARDS";
     const string TURN_LEFT = "TURN_LEFT";
     const string TURN_RIGHT = "TURN_RIGHT";
     const string WAIT = "WAIT";
@@ -17,13 +17,14 @@ public class CarController : MonoBehaviour
     public float RotateSpeed = 2f;
     public float CriticalDistance = 1f;
     public float CriticalDistanceSide = 1.5f;
+    public float DistanceForRotation = 0.3f;
     public string State; // stop/forwards/baackwards/turn_left/turn_right
     public bool IsApproachingLeft;
     public bool IsApproachingRight;
 
     private void Start()
     {
-        State = WAIT;
+        State = MOVE_FORWARDS;
     }
 
     private void Update()
@@ -35,19 +36,19 @@ public class CarController : MonoBehaviour
 
     void Waiting()
     {
-        if(im.upDistance >= CriticalDistance && !IsApproachingRight && !IsApproachingLeft)
+        if (im.upDistance >= CriticalDistance && !IsApproachingRight && !IsApproachingLeft)
         {
             State = MOVE_FORWARDS;
         }
-        else if(IsApproachingRight)
+        else if (IsApproachingRight)
         {
             State = TURN_LEFT;
         }
-        else if(IsApproachingLeft)
+        else if (IsApproachingLeft)
         {
             State = TURN_RIGHT;
         }
-        else if(im.upDistance <= CriticalDistance)
+        else if (im.upDistance <= CriticalDistance)
         {
             State = (im.leftDistance <= im.rightDistance) ? TURN_RIGHT : TURN_LEFT;
         }
@@ -58,7 +59,7 @@ public class CarController : MonoBehaviour
 
     void MoveForwards()
     {
-        if(
+        if (
             im.upDistance <= CriticalDistance
            || IsApproachingRight
            || IsApproachingLeft
@@ -70,13 +71,24 @@ public class CarController : MonoBehaviour
     }
 
     void MoveBackwards()
-    {        
+    {
+        if (im.leftDistance >= DistanceForRotation)
+        {
+            State = TURN_LEFT;
+        }
+         if(im.rightDistance >= DistanceForRotation){
+            State = TURN_RIGHT;
+        }
         transform.Translate(Vector2.down * Time.deltaTime * CarSpeed);
     }
 
     void TurnLeft()
     {
-        if(im.rightDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistance)
+        if (im.leftDistance <= DistanceForRotation)
+        {
+            State = MOVE_BACKWARDS;
+        }
+         if (im.rightDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistance)
         {
             State = WAIT;
         }
@@ -85,14 +97,19 @@ public class CarController : MonoBehaviour
 
     void TurnRight()
     {
-        if(im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistance)
+        if (im.rightDistance <= DistanceForRotation)
+        {
+            State = MOVE_BACKWARDS;
+        }
+        else if (im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistance)
         {
             State = WAIT;
         }
         transform.Rotate(0, 0, transform.rotation.z + -RotateSpeed);
     }
 
-    void Stop(){
+    void Stop()
+    {
 
     }
 
@@ -127,14 +144,14 @@ public class CarController : MonoBehaviour
     {
         bool IsApproaching = false;
         int SmallerDistanceCounter = 0;
-        for(int i = 1; i < DistanceHistory.Length; i++)
+        for (int i = 1; i < DistanceHistory.Length; i++)
         {
-            if(DistanceHistory[i] <= CriticalDistance && DistanceHistory[i] < DistanceHistory[i - 1])
+            if (DistanceHistory[i] <= CriticalDistanceSide && DistanceHistory[i] < DistanceHistory[i - 1])
             {
                 SmallerDistanceCounter++;
             }
         }
-        if(SmallerDistanceCounter >= DistanceHistory.Length / 2)
+        if (SmallerDistanceCounter >= DistanceHistory.Length / 2)
         {
             IsApproaching = true;
         }
@@ -142,7 +159,8 @@ public class CarController : MonoBehaviour
         return IsApproaching;
     }
 
-    bool IsEnoughSpaceToTurn(){
+    bool IsEnoughSpaceToTurn()
+    {
         return true;
     }
 }

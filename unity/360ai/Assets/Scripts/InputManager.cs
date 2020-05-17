@@ -19,11 +19,11 @@ public class InputManager : MonoBehaviour
     {
         RightDistanceHistory = new float[5];
         LeftDistanceHistory = new float[5];
-        //for(int i = 0; i < 5; i++)
-        //{
-         //   RightDistanceHistory[i] = 100;
-          //  LeftDistanceHistory[i] = 100;
-        //}
+        for(int i = 0; i < 5; i++)
+        {
+           RightDistanceHistory[i] = 100;
+           LeftDistanceHistory[i] = 100;
+        }
     }
 
     private void FixedUpdate()
