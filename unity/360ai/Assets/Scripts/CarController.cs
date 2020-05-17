@@ -16,8 +16,8 @@ public class CarController : MonoBehaviour
     public float CarSpeed = 2f;
     public float RotateSpeed = 2f;
     public float CriticalDistance = 1f;
-    public float CriticalDistanceSide = 1.5f;
-    public float DistanceForRotation = 0.3f;
+    public float CriticalDistanceSide = 1.5f; // This var is experimental. Might not be needed in the future.
+    public float CriticalDistanceWhenTurning = 1.25f; // This should be about 20-30% larger than CriticalDistance in order to eliminate laggy rotation.
     public string State; // stop/forwards/baackwards/turn_left/turn_right
     public bool IsApproachingLeft;
     public bool IsApproachingRight;
@@ -72,23 +72,12 @@ public class CarController : MonoBehaviour
 
     void MoveBackwards()
     {
-        if (im.leftDistance >= DistanceForRotation)
-        {
-            State = TURN_LEFT;
-        }
-         if(im.rightDistance >= DistanceForRotation){
-            State = TURN_RIGHT;
-        }
         transform.Translate(Vector2.down * Time.deltaTime * CarSpeed);
     }
 
     void TurnLeft()
     {
-        if (im.leftDistance <= DistanceForRotation)
-        {
-            State = MOVE_BACKWARDS;
-        }
-         if (im.rightDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistance)
+        if (im.rightDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistanceWhenTurning)
         {
             State = WAIT;
         }
@@ -97,11 +86,7 @@ public class CarController : MonoBehaviour
 
     void TurnRight()
     {
-        if (im.rightDistance <= DistanceForRotation)
-        {
-            State = MOVE_BACKWARDS;
-        }
-        else if (im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistance)
+        if (im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistanceWhenTurning)
         {
             State = WAIT;
         }
@@ -115,7 +100,6 @@ public class CarController : MonoBehaviour
 
     void HandleStates()
     {
-        // This could be implemented as a one liner if state variable was pointer to a function.
         switch (State)
         {
             case MOVE_FORWARDS:
@@ -137,7 +121,6 @@ public class CarController : MonoBehaviour
                 Stop();
                 break;
         }
-        //Debug.Log(State);
     }
 
     bool IsApproaching(float[] DistanceHistory)
@@ -157,10 +140,5 @@ public class CarController : MonoBehaviour
         }
 
         return IsApproaching;
-    }
-
-    bool IsEnoughSpaceToTurn()
-    {
-        return true;
     }
 }
