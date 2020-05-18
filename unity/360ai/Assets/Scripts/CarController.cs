@@ -11,6 +11,8 @@ public class CarController : MonoBehaviour
     const string TURN_RIGHT = "TURN_RIGHT";
     const string WAIT = "WAIT";
     const string STOP = "STOP";
+    const string PANIC = "PANIC";
+    public string State;
 
     public InputManager im;
     public float CarSpeed = 2f;
@@ -18,13 +20,15 @@ public class CarController : MonoBehaviour
     public float CriticalDistance = 1f;
     public float CriticalDistanceSide = 1.5f; // This var is experimental. Might not be needed in the future.
     public float CriticalDistanceWhenTurning = 1.25f; // This should be about 20-30% larger than CriticalDistance in order to eliminate laggy rotation.
-    public string State; // stop/forwards/baackwards/turn_left/turn_right
+    public float SecondsToPanic = 5f;
     public bool IsApproachingLeft;
     public bool IsApproachingRight;
+    public float LastForwardCommand;
 
     private void Start()
     {
         State = MOVE_FORWARDS;
+        LastForwardCommand = 0;
     }
 
     private void Update()
@@ -32,6 +36,10 @@ public class CarController : MonoBehaviour
         HandleStates();
         IsApproachingLeft = IsApproaching(im.LeftDistanceHistory);
         IsApproachingRight = IsApproaching(im.RightDistanceHistory);
+        if(LastForwardCommand <= Time.realtimeSinceStartup - SecondsToPanic)
+        {
+            State = PANIC;
+        }
     }
 
     void Waiting()
@@ -52,13 +60,15 @@ public class CarController : MonoBehaviour
         {
             State = (im.leftDistance <= im.rightDistance) ? TURN_RIGHT : TURN_LEFT;
         }
-        // else{
-        //     State = MOVE_BACKWARDS;
-        // }
+        else
+        {
+            State = PANIC;
+        }
     }
 
     void MoveForwards()
     {
+        LastForwardCommand = Time.realtimeSinceStartup;
         if (
             im.upDistance <= CriticalDistance
            || IsApproachingRight
@@ -98,6 +108,13 @@ public class CarController : MonoBehaviour
 
     }
 
+    void Panic()
+    {
+        // Make vehicle play beeping sound.
+        // Vehicle now shall be controlled by a remote controller.
+        // Restore STATE to WAIT after user is done controlling the vehicle.
+    }
+
     void HandleStates()
     {
         switch (State)
@@ -116,6 +133,9 @@ public class CarController : MonoBehaviour
                 break;
             case WAIT:
                 Waiting();
+                break;
+            case PANIC:
+                Panic();
                 break;
             default:
                 Stop();
