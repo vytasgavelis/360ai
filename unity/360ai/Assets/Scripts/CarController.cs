@@ -25,18 +25,20 @@ public class CarController : MonoBehaviour
     public bool IsApproachingRight;
     public float LastForwardCommand;
 
+    // Put this into your initialization function.
     private void Start()
     {
         State = MOVE_FORWARDS;
         LastForwardCommand = 0;
     }
 
+    // Put this into your while loop.
     private void Update()
     {
         HandleStates();
         IsApproachingLeft = IsApproaching(im.LeftDistanceHistory);
         IsApproachingRight = IsApproaching(im.RightDistanceHistory);
-        if(LastForwardCommand <= Time.realtimeSinceStartup - SecondsToPanic)
+        if(LastForwardCommand <= Time.realtimeSinceStartup - SecondsToPanic) // You should replace this with micros() function in arduino.
         {
             State = PANIC;
         }
@@ -68,7 +70,7 @@ public class CarController : MonoBehaviour
 
     void MoveForwards()
     {
-        LastForwardCommand = Time.realtimeSinceStartup;
+        LastForwardCommand = Time.realtimeSinceStartup; // Replace with micros() function.
         if (
             im.upDistance <= CriticalDistance
            || IsApproachingRight
@@ -77,12 +79,12 @@ public class CarController : MonoBehaviour
         {
             State = WAIT;
         }
-        transform.Translate(Vector2.up * Time.deltaTime * CarSpeed);
+        transform.Translate(Vector2.up * Time.deltaTime * CarSpeed); // Move vehicle forwards
     }
 
     void MoveBackwards()
     {
-        transform.Translate(Vector2.down * Time.deltaTime * CarSpeed);
+        transform.Translate(Vector2.down * Time.deltaTime * CarSpeed); // Move vehicle backwards
     }
 
     void TurnLeft()
@@ -91,16 +93,16 @@ public class CarController : MonoBehaviour
         {
             State = WAIT;
         }
-        transform.Rotate(0, 0, transform.rotation.z + RotateSpeed);
+        transform.Rotate(0, 0, transform.rotation.z + RotateSpeed); // Turn vehicle left
     }
 
     void TurnRight()
     {
-        if (im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistanceWhenTurning)
+        if (im.leftDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistanceWhenTurning)
         {
             State = WAIT;
         }
-        transform.Rotate(0, 0, transform.rotation.z + -RotateSpeed);
+        transform.Rotate(0, 0, transform.rotation.z + -RotateSpeed); // Turn vehicle right
     }
 
     void Stop()
@@ -145,6 +147,8 @@ public class CarController : MonoBehaviour
 
     bool IsApproaching(float[] DistanceHistory)
     {
+        // You can find distance history implementation in InputManager.cs line 70.
+        // DistanceHistory array may be made longer if lack of sensor precision is creating any issues.
         bool IsApproaching = false;
         int SmallerDistanceCounter = 0;
         for (int i = 1; i < DistanceHistory.Length; i++)
