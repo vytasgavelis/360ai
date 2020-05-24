@@ -11,7 +11,8 @@ public class InputManager : MonoBehaviour
     public float[] LeftDistanceHistory;
     private int HistoryCounter = 0;
 
-    public float rayDistance = 50;
+    public float rayDistanceUp = 0.75f;
+    public float rayDistanceSide = 0.63f;
 
     public LayerMask ObstacleLayerMask;
 
@@ -31,7 +32,7 @@ public class InputManager : MonoBehaviour
         RaycastCheckUpdate();
     }
 
-    private RaycastHit2D CheckRaycast(Vector2 direction)
+    private RaycastHit2D CheckRaycast(Vector2 direction, float rayDistance)
     {
         Vector2 startingPosition = new Vector2(transform.position.x, transform.position.y);
 
@@ -41,13 +42,13 @@ public class InputManager : MonoBehaviour
 
     private void RaycastCheckUpdate()
     {
-        Vector2 up = transform.up * rayDistance;
-        Vector2 left = -transform.right * rayDistance;
-        Vector2 right = transform.right * rayDistance;
+        Vector2 up = transform.up * rayDistanceUp;
+        Vector2 left = -transform.right * rayDistanceSide;
+        Vector2 right = transform.right * rayDistanceSide;
 
-        RaycastHit2D upHit = CheckRaycast(up);
-        RaycastHit2D leftHit = CheckRaycast(left);
-        RaycastHit2D rightHit = CheckRaycast(right);
+        RaycastHit2D upHit = CheckRaycast(up, rayDistanceUp);
+        RaycastHit2D leftHit = CheckRaycast(left, rayDistanceSide);
+        RaycastHit2D rightHit = CheckRaycast(right, rayDistanceSide);
 
         upDistance = 100;
         leftDistance = 100;
@@ -55,15 +56,15 @@ public class InputManager : MonoBehaviour
 
         if (upHit.collider)
         {
-            upDistance = Mathf.Abs(upHit.point.y - transform.position.y);
+            upDistance = upHit.distance;
         }
         if (leftHit.collider)
-        {
-            leftDistance = Mathf.Abs(leftHit.point.x - transform.position.x);
+        { 
+            leftDistance = leftHit.distance;
         }
         if (rightHit.collider)
-        {
-            rightDistance = Mathf.Abs(rightHit.point.x - transform.position.x);
+        { 
+            rightDistance = rightHit.distance;
         }
 
         // Keep track of previous distances.

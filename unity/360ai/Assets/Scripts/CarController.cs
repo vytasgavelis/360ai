@@ -12,6 +12,8 @@ public class CarController : MonoBehaviour
     const string WAIT = "WAIT";
     const string STOP = "STOP";
     const string PANIC = "PANIC";
+    const string TURN_LEFT_AFTER_ROTATION = "TURN_LEFT_AFTER_ROTATION";
+    const string TURN_RIGHT_AFTER_ROTATION = "TURN_RIGHT_AFTER_ROTATION";
     public string State;
 
     public InputManager im;
@@ -21,6 +23,9 @@ public class CarController : MonoBehaviour
     public float CriticalDistanceSide = 1.5f; // This var is experimental. Might not be needed in the future.
     public float CriticalDistanceWhenTurning = 1.25f; // This should be about 20-30% larger than CriticalDistance in order to eliminate laggy rotation.
     public float SecondsToPanic = 5f;
+    public float SecondsToTurnAfterRotation = 0.25f; // Since we cannot detect obstacles after rotating turn for another x amount of seconds just to be sure.
+    public float LastTurnLeftCommand = 0f;
+    public float LastTurnRightCommand = 0f;
     public bool IsApproachingLeft;
     public bool IsApproachingRight;
     public float LastForwardCommand;
@@ -89,7 +94,8 @@ public class CarController : MonoBehaviour
     {
         if (im.rightDistance >= CriticalDistanceSide && im.upDistance >= CriticalDistanceWhenTurning)
         {
-            State = WAIT;
+            LastTurnLeftCommand = Time.realtimeSinceStartup;
+            State = TURN_LEFT_AFTER_ROTATION;
         }
         transform.Rotate(0, 0, transform.rotation.z + RotateSpeed);
     }
@@ -98,6 +104,31 @@ public class CarController : MonoBehaviour
     {
         if (im.leftDistance >= CriticalDistance && im.upDistance >= CriticalDistanceWhenTurning)
         {
+            LastTurnRightCommand = Time.realtimeSinceStartup;
+            State = TURN_RIGHT_AFTER_ROTATION;
+        }
+        transform.Rotate(0, 0, transform.rotation.z + -RotateSpeed);
+    }
+
+    void TurnLeftAfterRotation(){
+        if(
+            LastTurnLeftCommand + SecondsToTurnAfterRotation < Time.realtimeSinceStartup
+            || im.upDistance <= CriticalDistance
+            || im.leftDistance <= CriticalDistance
+            || im.rightDistance <= CriticalDistance
+        ){
+            State = WAIT;
+        }
+        transform.Rotate(0, 0, transform.rotation.z + RotateSpeed);
+    }
+
+    void TurnRightAfterRotation(){
+        if(
+            LastTurnRightCommand + SecondsToTurnAfterRotation  < Time.realtimeSinceStartup
+            || im.upDistance <= CriticalDistance
+            || im.leftDistance <= CriticalDistance
+            || im.rightDistance <= CriticalDistance
+        ){
             State = WAIT;
         }
         transform.Rotate(0, 0, transform.rotation.z + -RotateSpeed);
@@ -130,6 +161,12 @@ public class CarController : MonoBehaviour
                 break;
             case TURN_RIGHT:
                 TurnRight();
+                break;
+            case TURN_LEFT_AFTER_ROTATION:
+                TurnLeftAfterRotation();
+                break;
+            case TURN_RIGHT_AFTER_ROTATION:
+                TurnRightAfterRotation();
                 break;
             case WAIT:
                 Waiting();

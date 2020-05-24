@@ -61,7 +61,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\CarController.cs" />
+    <Compile Include="Assets\Scripts\CarControllerNew.cs" />
     <Compile Include="Assets\Scripts\InputManager.cs" />
+    <Compile Include="Assets\Scripts\PivotController.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/Projects/360ai/unity/360ai/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
