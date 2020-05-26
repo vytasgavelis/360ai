@@ -75,8 +75,6 @@ public class InputManager : MonoBehaviour
         {
             HistoryCounter = 0;
         }
-
-        //Debug.Log(upDistance + " " + leftDistance + " " + rightDistance);
     }
 
 }
