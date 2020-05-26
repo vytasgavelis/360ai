@@ -21,8 +21,6 @@ int PANIC = 7;
 int BACK = 8;
 int State;
 
-//public float CarSpeed = 2f;
-//public float RotateSpeed = 2f;
 int CriticalDistance = 15;
 int CriticalDistanceSide = 20;        // This var is experimental. Might not be needed in the future.
 int CriticalDistanceWhenTurning = 10; // This should be about 20-30% larger than CriticalDistance in order to eliminate laggy rotation.
@@ -47,10 +45,6 @@ public:
   int leftDistance;
   int rightDistance;
   int HistoryCounter = 0;
-
-  //public float rayDistance = 50;
-
-  //public LayerMask ObstacleLayerMask;
 
   InputManager()
   {
@@ -79,9 +73,6 @@ public:
 
     double distance = duration * 0.034 / 2;
 
-    //Serial.print("Distance: ");
-    //Serial.println(distance);
-
     return distance;
   }
 
@@ -100,8 +91,6 @@ public:
     {
       HistoryCounter = 0;
     }
-
-    //Debug.Log(upDistance + " " + leftDistance + " " + rightDistance);
   }
 };
 
@@ -188,10 +177,6 @@ void loop()
   HandleStates();
   IsApproachingLeft = IsApproaching(LeftDistanceHistory);
   IsApproachingRight = IsApproaching(RightDistanceHistory);
-  /*if (LastForwardCommand <= Time.realtimeSinceStartup - SecondsToPanic) // You should replace this with micros() function in arduino.
-  {
-    State = PANIC;
-  }*/
 
   delay(1);
 }
@@ -223,7 +208,6 @@ void Waiting()
 
 void MoveForwards()
 {
-  //LastForwardCommand = Time.realtimeSinceStartup; // Replace with micros() function.
   if (im.upDistance <= CriticalDistance || IsApproachingRight || IsApproachingLeft)
   {
     State = WAIT;
@@ -248,7 +232,6 @@ void MoveBackwards()
       delay(1000);
   }
   State = MOVE_FORWARDS;
-  //State = im.leftDistance >= im.rightDistance ? TURN_LEFT : TURN_RIGHT;
 }
 
 void TurnLeft()
@@ -277,9 +260,6 @@ void Stop()
 void Panic()
 {
   car.STOP();
-  // Make vehicle play beeping sound.
-  // Vehicle now shall be controlled by a remote controller.
-  // Restore STATE to WAIT after user is done controlling the vehicle.
 }
 
 void HandleStates()
@@ -315,8 +295,6 @@ void HandleStates()
 
 bool IsApproaching(int *DistanceHistory)
 {
-  // You can find distance history implementation in InputManager.cs line 70.
-  // DistanceHistory array may be made longer if lack of sensor precision is creating any issues.
   bool IsApproaching = false;
   int SmallerDistanceCounter = 0;
   for (int i = 1; i < hisLen; i++)
@@ -333,24 +311,3 @@ bool IsApproaching(int *DistanceHistory)
 
   return IsApproaching;
 }
-
-/*
-int dist(int echoPin, int trigPin)
-{
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  
-  double duration = pulseIn(echoPin, HIGH);
-  
-  double distance= duration*0.034/2;
-  
-  //Serial.print("Distance: ");
-  //Serial.println(distance);
-
-  return distance;
-}
-*/
